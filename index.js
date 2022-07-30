@@ -174,6 +174,8 @@ const stop = (message) => {
     return message.reply('No songs to stop!');
   }
 
+  queue.server_queue.songs = [];
+
   queue.server_queue = null;
   const connection = getVoiceConnection(message.member.voice.channel.guild.id);
   connection.destroy();
