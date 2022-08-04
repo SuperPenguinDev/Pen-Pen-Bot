@@ -3,7 +3,7 @@ require('dotenv').config();
 const { generateDependencyReport, AudioPlayerStatus, joinVoiceChannel, createAudioPlayer, createAudioResource, getVoiceConnection  } = require('@discordjs/voice');
 const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
-const { Client, Message }  = require('discord.js');
+const { Client, Message, ReactionUserManager }  = require('discord.js');
 const client = new Client({ intents: ['Guilds', 'GuildMessages', 'MessageContent', 'GuildVoiceStates']})
 
 // Ready
@@ -16,6 +16,7 @@ client.on('ready', () => {
 const queue = new Map();
 
 queue.server_queue = null;
+queue.player = null;
 
 client.on("messageCreate", (message) => {
     let args = message.content.split(" ");
@@ -35,6 +36,12 @@ client.on("messageCreate", (message) => {
         break;
       case '*stop':
         stop(message);
+        break;
+      case '*pause':
+        pause(message);
+        break;
+      case '*resume':
+        resume(message);
         break;
     }
 })
@@ -123,11 +130,14 @@ const play_audio = async (guild, song) => {
   if (!song) {
     queue.queue_constructor.connection.destroy();
     queue.server_queue = null;
+    queue.player = null;
     queue.delete(guild.id);
     return;
   }
 
   const player = createAudioPlayer();
+
+  queue.player = player;
 
   player.on(AudioPlayerStatus.Playing, () => {
     // Everything is working!
@@ -176,7 +186,28 @@ const stop = (message) => {
 
   queue.queue_constructor.connection.destroy();
   queue.server_queue = null;
+  queue.player = null;
   queue.delete(message.guild.id);
+}
+
+const pause = (message) => {
+  if (!message.member.voice.channel) return message.reply('You need to be in a voice channel to use this command!');
+
+  if (queue.player === null) {
+    return message.reply('No audio playing!');
+  }
+
+  queue.player.pause();
+}
+
+const resume = (message) => {
+  if (!message.member.voice.channel) return message.reply('You need to be in a voice channel to use this command!');
+
+  if (queue.player === null) {
+    return message.reply('No audio playing!');
+  }
+
+  queue.player.unpause();
 }
 
 // Login
