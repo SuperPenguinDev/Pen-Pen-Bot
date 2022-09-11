@@ -43,6 +43,8 @@ client.on("messageCreate", (message) => {
       case '*resume':
         resume(message);
         break;
+      case '*help':
+        help(message);
     }
 })
 
@@ -208,6 +210,51 @@ const resume = (message) => {
   }
 
   queue.player.unpause();
+}
+
+const help = (message) => {
+  const exampleEmbed = {
+    color: 0x0099ff,
+    title: 'Help Panel',
+    description: 'Welcome to the help panel!',
+    fields: [
+      {
+        name: '*play',
+        value: 'Seach and play songs!',
+      },
+      {
+        name: '*pause',
+        value: 'Pauses the currently played music!',
+        inline: true,
+      },
+      {
+        name: '*resume',
+        value: 'Resumes the currently paused music!',
+        inline: true,
+      },
+      {
+        name: '*stop',
+        value: 'Ends the currently played music!',
+        inline: true,
+      },
+      {
+        name: '*ping',
+        value: 'Gives you the ping of the bot and responds with `pong`.',
+        inline: true,
+      },
+      {
+        name: '*tick',
+        value: 'Bot responds with `tock`.',
+        inline: true,
+      },
+    ],
+    timestamp: new Date().toISOString(),
+    footer: {
+      text: 'SuperPenguinDev',
+    },
+  };
+  
+  message.channel.send({ embeds: [exampleEmbed] });
 }
 
 // Login
